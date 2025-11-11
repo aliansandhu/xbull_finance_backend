@@ -4,10 +4,11 @@ from .utils import stream_video
 from .views import (
     CourseViewSet, ModuleViewSet, VideoLectureViewSet,
     QuizViewSet, CourseProgressView, ModuleProgressView, VideoProgressView, SubmitQuizView, GetNextQuizView,
-    AdminUserCourseProgressListView, AdminUsersListView, UserProgressView, AdminUsersAllListView
+    AdminUserCourseProgressListView, AdminUsersListView, UserProgressView, AdminUsersAllListView, DebugEndpointView
 )
 
 urlpatterns = [
+    path("debug-endpoint/", DebugEndpointView.as_view(), name="debug-endpoint"),  # Debug endpoint
     path("courses/", CourseViewSet.as_view({'get': 'list'}), name="course-list"),
     path("courses/<int:pk>/", CourseViewSet.as_view({'get': 'retrieve'}), name="course-detail"),
     path("modules/", ModuleViewSet.as_view({'get': 'list'}), name="module-list"),
