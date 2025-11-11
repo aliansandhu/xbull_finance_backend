@@ -227,7 +227,7 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class QuizViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def retrieve(self, request, module_id=None):
         """Fetch quiz for a module"""
