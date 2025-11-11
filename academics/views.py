@@ -23,6 +23,35 @@ from django.db.models import Sum
 User = get_user_model()
 
 
+# Debug endpoint to verify React app is hitting AWS server
+class DebugEndpointView(APIView):
+    """Debug endpoint to verify React app connection and request details"""
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    
+    def get(self, request):
+        return Response({
+            "message": "✅ React app is successfully hitting AWS server!",
+            "server": "api.xfinancebull.com",
+            "endpoint": "/lectures/<module_id>/",
+            "code_version": "V3_AUTH_DISABLED",
+            "timestamp": str(__import__('datetime').datetime.now()),
+            "request_info": {
+                "method": request.method,
+                "path": request.path,
+                "full_path": request.get_full_path(),
+                "host": request.get_host(),
+                "user": str(request.user) if hasattr(request, 'user') else 'Anonymous',
+                "authenticated": request.user.is_authenticated if hasattr(request, 'user') else False,
+            },
+            "headers": {
+                "origin": request.META.get('HTTP_ORIGIN', 'Not provided'),
+                "referer": request.META.get('HTTP_REFERER', 'Not provided'),
+                "user_agent": request.META.get('HTTP_USER_AGENT', 'Not provided'),
+            }
+        }, status=200)
+
+
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Retrieves all courses associated with the user & tracks progress.
@@ -188,7 +217,7 @@ class ModuleViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny,]
     authentication_classes = []  # Disable authentication for this view
     serializer_class = VideoLectureSerializer
 
@@ -221,7 +250,13 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
             "id": module.id,
             "module": module.title,
             "videos": video_serializer.data,
-            "quiz": quiz_serializer.data if quiz else None
+            "quiz": quiz_serializer.data if quiz else None,
+            "_debug": {
+                "code_version": "V3_AUTH_DISABLED",
+                "server": "api.xfinancebull.com",
+                "auth_required": False,
+                "timestamp": str(__import__('datetime').datetime.now())
+            }
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
