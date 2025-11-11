@@ -188,7 +188,8 @@ class ModuleViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
-    
+    permission_classes = [AllowAny]
+    authentication_classes = []  # Disable authentication for this view
     serializer_class = VideoLectureSerializer
 
     def get_queryset(self):
@@ -227,10 +228,15 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class QuizViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+    authentication_classes = []  # Disable authentication for this view
 
-    def retrieve(self, request, module_id=None):
+    def retrieve(self, request, *args, **kwargs):
         """Fetch quiz for a module"""
+        module_id = kwargs.get("module_id")
+        if not module_id:
+            return Response({"error": "Module ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
         module = get_object_or_404(Module, id=module_id)
         quiz = Quiz.objects.filter(module=module).first()
         if not quiz:
