@@ -197,7 +197,7 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
         if module_id:
             return VideoLecture.objects.filter(module_id=module_id)
         return VideoLecture.objects.all()
-    
+
     def list(self, request, *args, **kwargs):
         """Handle GET request and include quizzes along with lectures"""
         module_id = kwargs.get("module_id")
@@ -345,6 +345,7 @@ class SubmitQuizView(APIView):
             module_progress.attempted += 1
 
             module_progress.save()
+
 
         return Response({
             "score": score,
