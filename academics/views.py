@@ -30,7 +30,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     - Calculates progress percentage based on module and video completion
     - Provides total video lectures count and course duration in hours
     """
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny]
     serializer_class = CourseSerializer
 
     def get_queryset(self):
@@ -188,9 +188,8 @@ class ModuleViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
-       print("=" * 50)
-        print("DEBUG: VideoLectureViewSet.list() called")
     permission_classes = [AllowAny]
+    authentication_classes = []  # Disable authentication for this view
     serializer_class = VideoLectureSerializer
 
     def get_queryset(self):
@@ -241,10 +240,12 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
 
 class QuizViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
+    authentication_classes = []  # Disable authentication for this view
 
-    def retrieve(self, request, module_id=None):
+    def retrieve(self, request, *args, **kwargs):
         """Fetch quiz for a module"""
         module = get_object_or_404(Module, id=module_id)
+        print(f"DEBUG: Module found: {module.title}")
         quiz = Quiz.objects.filter(module=module).first()
         if not quiz:
             return Response({
