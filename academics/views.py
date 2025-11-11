@@ -188,6 +188,8 @@ class ModuleViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
+       print("=" * 50)
+        print("DEBUG: VideoLectureViewSet.list() called")
     permission_classes = [AllowAny]
     serializer_class = VideoLectureSerializer
 
@@ -200,8 +202,19 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """Handle GET request and include quizzes along with lectures"""
+        # DEBUG: Check if request is coming through
+        print("=" * 50)
+        print("DEBUG: VideoLectureViewSet.list() called")
+        print(f"DEBUG: Request method: {request.method}")
+        print(f"DEBUG: Request user: {request.user}")
+        print(f"DEBUG: User authenticated: {request.user.is_authenticated}")
+        print(f"DEBUG: kwargs: {kwargs}")
+        print(f"DEBUG: args: {args}")
+        print("=" * 50)
+        
         module_id = kwargs.get("module_id")
         if not module_id:
+            print("DEBUG: Module ID is missing!")
             return Response({"error": "Module ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check if module exists
