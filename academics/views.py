@@ -30,7 +30,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     - Calculates progress percentage based on module and video completion
     - Provides total video lectures count and course duration in hours
     """
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny,]
     serializer_class = CourseSerializer
 
     def get_queryset(self):
@@ -188,8 +188,7 @@ class ModuleViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [AllowAny]
-    authentication_classes = []  # Disable authentication for this view
+    
     serializer_class = VideoLectureSerializer
 
     def get_queryset(self):
@@ -201,19 +200,8 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """Handle GET request and include quizzes along with lectures"""
-        # DEBUG: Check if request is coming through
-        print("=" * 50)
-        print("DEBUG: VideoLectureViewSet.list() called")
-        print(f"DEBUG: Request method: {request.method}")
-        print(f"DEBUG: Request user: {request.user}")
-        print(f"DEBUG: User authenticated: {request.user.is_authenticated}")
-        print(f"DEBUG: kwargs: {kwargs}")
-        print(f"DEBUG: args: {args}")
-        print("=" * 50)
-        
         module_id = kwargs.get("module_id")
         if not module_id:
-            print("DEBUG: Module ID is missing!")
             return Response({"error": "Module ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check if module exists
@@ -239,13 +227,11 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class QuizViewSet(viewsets.ViewSet):
-    permission_classes = [AllowAny]
-    authentication_classes = []  # Disable authentication for this view
+    permission_classes = [IsAuthenticated]
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, module_id=None):
         """Fetch quiz for a module"""
         module = get_object_or_404(Module, id=module_id)
-        print(f"DEBUG: Module found: {module.title}")
         quiz = Quiz.objects.filter(module=module).first()
         if not quiz:
             return Response({
@@ -359,7 +345,6 @@ class SubmitQuizView(APIView):
             module_progress.attempted += 1
 
             module_progress.save()
-
 
         return Response({
             "score": score,
