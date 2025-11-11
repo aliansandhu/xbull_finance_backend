@@ -188,7 +188,7 @@ class ModuleViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = VideoLectureSerializer
 
     def get_queryset(self):
@@ -197,7 +197,7 @@ class VideoLectureViewSet(viewsets.ReadOnlyModelViewSet):
         if module_id:
             return VideoLecture.objects.filter(module_id=module_id)
         return VideoLecture.objects.all()
-
+    
     def list(self, request, *args, **kwargs):
         """Handle GET request and include quizzes along with lectures"""
         module_id = kwargs.get("module_id")
