@@ -256,23 +256,38 @@ class VideoProgressView(generics.RetrieveUpdateAPIView):
     - `PATCH`: Update watched seconds and mark completion.
     """
     serializer_class = UserVideoProgressSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+    authentication_classes = []  # Disable authentication for this view
 
     def get(self, request, *args, **kwargs):
         """Fetch user's video progress."""
-
         user = request.user
         video_id = self.kwargs.get('video_id')
 
         video = get_object_or_404(VideoLecture, id=video_id)
+        
+        # For anonymous users, return default progress
+        if not user.is_authenticated:
+            return Response({
+                "video": video.id,
+                "watched_seconds": 0,
+                "completed": False
+            }, status=status.HTTP_200_OK)
+        
         video_progress, created = UserVideoProgress.objects.get_or_create(user=user, video=video)
-
         return Response(self.serializer_class(video_progress).data, status=status.HTTP_200_OK)
 
     def patch(self, request, *args, **kwargs):
         """Update user's video watch progress."""
         user = request.user
         video_id = self.kwargs.get('video_id')
+        
+        # For anonymous users, return error or skip update
+        if not user.is_authenticated:
+            return Response({
+                "error": "Authentication required to update video progress"
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         watched_seconds = request.data.get("watched_seconds")
         completed = request.data.get("completed")
 
