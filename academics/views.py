@@ -281,17 +281,20 @@ class VideoProgressView(generics.RetrieveUpdateAPIView):
         """Update user's video watch progress."""
         user = request.user
         video_id = self.kwargs.get('video_id')
-        
-        # For anonymous users, return error or skip update
-        if not user.is_authenticated:
-            return Response({
-                "error": "Authentication required to update video progress"
-            }, status=status.HTTP_401_UNAUTHORIZED)
-        
         watched_seconds = request.data.get("watched_seconds")
         completed = request.data.get("completed")
 
         video = get_object_or_404(VideoLecture, id=video_id)
+        
+        # For anonymous users, skip saving progress (just return success)
+        if not user.is_authenticated:
+            return Response({
+                "video": video.id,
+                "watched_seconds": watched_seconds or 0,
+                "completed": completed or False,
+                "message": "Progress not saved (user not authenticated)"
+            }, status=status.HTTP_200_OK)
+        
         video_progress, created = UserVideoProgress.objects.get_or_create(user=user, video=video)
 
         if watched_seconds:
