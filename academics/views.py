@@ -30,7 +30,8 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     - Calculates progress percentage based on module and video completion
     - Provides total video lectures count and course duration in hours
     """
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny]
+    authentication_classes = []  # Disable authentication for this view
     serializer_class = CourseSerializer
 
     def get_queryset(self):
