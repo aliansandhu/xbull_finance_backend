@@ -169,7 +169,8 @@ class CourseProgressView(generics.RetrieveUpdateAPIView):
 
 
 class ModuleViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny]
+    authentication_classes = []  # Disable authentication for this view
     serializer_class = ModuleSerializer
 
     def get_queryset(self):
