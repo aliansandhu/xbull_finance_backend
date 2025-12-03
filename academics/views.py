@@ -103,6 +103,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
                     "completed_videos": completed_videos,
                     "progress_percentage": round(overall_progress_percentage, 2),
                     "completed": course_completed,
+                    "zee":21
                 })
 
             # ✅ Always include progress data (with totals for all, user-specific for authenticated)
