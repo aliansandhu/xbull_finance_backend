@@ -63,16 +63,16 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
             total_videos = VideoLecture.objects.filter(module__in=modules).count()
 
             # Base structure with total counts (available for all users)
-            # progress_data = {
-            #     "completed_modules": 0,
-            #     "total_modules": total_modules,  # ✅ Show for all users
-            #     "total_videos": total_videos,  # ✅ Show for all users
-            #     "completed_videos": 0,
-            #     "total_duration_hours": round(total_duration_hours, 2),  # ✅ Show for all users
-            #     "progress_percentage": 0,
-            #     "completed": False,
-            #     "zee":222
-            # }
+            progress_data = {
+                "completed_modules": 0,
+                "total_modules": total_modules,  # ✅ Show for all users
+                "total_videos": total_videos,  # ✅ Show for all users
+                "completed_videos": 0,
+                "total_duration_hours": round(total_duration_hours, 2),  # ✅ Show for all users
+                "progress_percentage": 0,
+                "completed": False,
+                "zee":222
+            }
 
             # User-specific progress (only for authenticated users)
             if user.is_authenticated:
