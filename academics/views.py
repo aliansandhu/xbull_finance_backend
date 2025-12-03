@@ -38,7 +38,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         """Return all courses the user has access to."""
         return Course.objects.all().order_by('id')
 
-   def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         """Retrieve courses & track progress for the authenticated user."""
         user = request.user
         courses = self.get_queryset()
@@ -47,34 +47,38 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
         for course in courses:
             course_serialized = self.get_serializer(course).data
 
-            # Base structure (same fields for all users)
+            # Get modules for this course (needed for all users)
+            modules = Module.objects.filter(course=course)
+            total_modules = modules.count()
+
+            # Calculate total video duration (seconds → hours) - for all users
+            total_duration_seconds = (
+                    VideoLecture.objects.filter(module__in=modules)
+                    .aggregate(Sum("duration"))["duration__sum"]
+                    or 0
+            )
+            total_duration_hours = total_duration_seconds / 3600
+
+            # Calculate total video counts - for all users
+            total_videos = VideoLecture.objects.filter(module__in=modules).count()
+
+            # Base structure with total counts (available for all users)
             progress_data = {
                 "completed_modules": 0,
-                "total_modules": 0,
-                "total_videos": 0,
+                "total_modules": total_modules,  # ✅ Show for all users
+                "total_videos": total_videos,  # ✅ Show for all users
                 "completed_videos": 0,
-                "total_duration_hours": 0,
+                "total_duration_hours": round(total_duration_hours, 2),  # ✅ Show for all users
                 "progress_percentage": 0,
                 "completed": False,
             }
 
+            # User-specific progress (only for authenticated users)
             if user.is_authenticated:
-                modules = Module.objects.filter(course=course)
-                total_modules = modules.count()
                 completed_modules = UserModuleProgress.objects.filter(
                     user=user, module__in=modules, completed=True
                 ).count()
 
-                # Calculate total video duration (seconds → hours)
-                total_duration_seconds = (
-                        VideoLecture.objects.filter(module__in=modules)
-                        .aggregate(Sum("duration"))["duration__sum"]
-                        or 0
-                )
-                total_duration_hours = total_duration_seconds / 3600
-
-                # Calculate video counts
-                total_videos = VideoLecture.objects.filter(module__in=modules).count()
                 completed_videos = UserVideoProgress.objects.filter(
                     user=user, video__module__in=modules, completed=True
                 ).count()
@@ -93,23 +97,19 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
                 course_progress.completed = course_completed
                 course_progress.save()
 
-                # ✅ Update progress data
+                # ✅ Update user-specific progress data
                 progress_data.update({
                     "completed_modules": completed_modules,
-                    "total_modules": total_modules,
-                    "total_videos": total_videos,
                     "completed_videos": completed_videos,
-                    "total_duration_hours": round(total_duration_hours, 2),
                     "progress_percentage": round(overall_progress_percentage, 2),
                     "completed": course_completed,
                 })
 
-            # ✅ Always include progress data (zeroed if anonymous)
+            # ✅ Always include progress data (with totals for all, user-specific for authenticated)
             course_serialized.update(progress_data)
             course_data.append(course_serialized)
 
         return Response(course_data, status=status.HTTP_200_OK)
-
 
 
 class CourseProgressView(generics.RetrieveUpdateAPIView):
