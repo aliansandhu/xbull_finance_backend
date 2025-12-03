@@ -69,7 +69,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
                 "total_videos": total_videos,  # ✅ Show for all users
                 "completed_videos": 0,
                 "total_duration_hours": round(total_duration_hours, 2),  # ✅ Show for all users
-                "progress_percentage": 0,
+                "progress_percentage": round(total_duration_hours / total_modules, 2),
                 "completed": False,
             }
 
