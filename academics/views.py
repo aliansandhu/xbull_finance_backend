@@ -71,6 +71,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
                 "total_duration_hours": round(total_duration_hours, 2),  # ✅ Show for all users
                 "progress_percentage": 0,
                 "completed": False,
+                "zee":222
             }
 
             # User-specific progress (only for authenticated users)
