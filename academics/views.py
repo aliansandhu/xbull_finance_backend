@@ -31,7 +31,8 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     - Provides total video lectures count and course duration in hours
     """
     permission_classes = [AllowAny]
-    authentication_classes = []  # Disable authentication for this view
+    # Remove authentication_classes = [] to allow JWT authentication
+    # This way authenticated users can be detected while still allowing anonymous access
     serializer_class = CourseSerializer
 
     def get_queryset(self):
