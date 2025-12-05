@@ -85,10 +85,12 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
                     user=user, video__module__in=modules, completed=True
                 ).count()
 
+
                 # Compute progress percentages
-                module_percentage = (completed_modules / total_modules) * 50 if total_modules > 0 else 0
-                video_percentage = (completed_videos / total_videos) * 50 if total_videos > 0 else 0
-                overall_progress_percentage = module_percentage + video_percentage
+                # module_percentage = (completed_modules / total_modules) * 50 if total_modules > 0 else 0
+                video_percentage = (completed_videos / total_videos) * 100 if total_videos > 0 else 0
+                # overall_progress_percentage = module_percentage + video_percentage
+                overall_progress_percentage = video_percentage
 
                 # Update or create course progress record
                 course_completed = completed_modules == total_modules if total_modules > 0 else False
