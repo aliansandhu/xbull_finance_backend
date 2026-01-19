@@ -240,20 +240,36 @@ class QuizViewSet(viewsets.ViewSet):
     authentication_classes = []  # Disable authentication for this view
 
     def retrieve(self, request, *args, **kwargs):
-        """Fetch quiz for a module"""
+        """Fetch quiz for a module. For tier 3, returns 20 random quizzes out of all available."""
+        import random
+        
         module_id = kwargs.get("module_id")
         if not module_id:
             return Response({"error": "Module ID is required"}, status=status.HTTP_400_BAD_REQUEST)
         
         module = get_object_or_404(Module, id=module_id)
-        quiz = Quiz.objects.filter(module=module).first()
-        if not quiz:
+        course = module.course
+        
+        # Get all quizzes for this module
+        all_quizzes = list(Quiz.objects.filter(module=module))
+        
+        if not all_quizzes:
             return Response({
                 "message": "No quiz found for this module."
             }, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = QuizSerializer(quiz)
-        return Response(serializer.data, status=200)
+        
+        # If tier is 3, return 20 random quizzes
+        if course.tier == 3:
+            # Randomly select 20 quizzes (or all if less than 20)
+            num_to_select = min(20, len(all_quizzes))
+            selected_quizzes = random.sample(all_quizzes, num_to_select)
+            serializer = QuizSerializer(selected_quizzes, many=True)
+            return Response(serializer.data, status=200)
+        else:
+            # For tier 1 and 2, return first quiz (original behavior)
+            quiz = all_quizzes[0]
+            serializer = QuizSerializer(quiz)
+            return Response(serializer.data, status=200)
 
 
 class VideoProgressView(generics.RetrieveUpdateAPIView):
