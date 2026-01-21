@@ -278,7 +278,6 @@ class VideoProgressView(generics.RetrieveUpdateAPIView):
     """
     serializer_class = UserVideoProgressSerializer
     permission_classes = [AllowAny]
-    authentication_classes = []  # Disable authentication for this view
 
     def get(self, request, *args, **kwargs):
         """Fetch user's video progress."""
